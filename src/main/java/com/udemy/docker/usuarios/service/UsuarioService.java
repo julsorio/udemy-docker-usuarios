@@ -14,4 +14,6 @@ public interface UsuarioService {
 	public Usuario saveUsuario(Usuario usuario);
 	
 	public void deleteUsuario(Long id);
+	
+	public Optional<Usuario> getUsuarioPorEmail(String email);
 }

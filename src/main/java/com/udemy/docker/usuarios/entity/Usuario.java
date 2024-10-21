@@ -1,10 +1,14 @@
 package com.udemy.docker.usuarios.entity;
 
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "usuarios")
@@ -13,10 +17,15 @@ public class Usuario {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
+	@NotBlank(message = "Se require el nombre")
 	private String nombre;
 	
+	@Column(unique = true)
+	@NotBlank(message = "Se requiere el email")
+	@Email
 	private String email;
 	
+	@NotBlank(message = "Se require la password")
 	private String password;
 	
 	public Usuario() {
