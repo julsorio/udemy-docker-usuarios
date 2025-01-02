@@ -16,4 +16,6 @@ public interface UsuarioService {
 	public void deleteUsuario(Long id);
 	
 	public Optional<Usuario> getUsuarioPorEmail(String email);
+	
+	public List<Usuario> getUsuariosPorIds(Iterable<Long> ids);
 }

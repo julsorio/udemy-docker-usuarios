@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.udemy.docker.usuarios.entity.Usuario;
@@ -26,29 +28,48 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("api/v1")
 public class UsuarioController {
+	static Logger logger = Logger.getLogger(UsuarioController.class.getName());
 
 	@Autowired
 	private UsuarioService usuarioService;
 
 	@GetMapping(path = "/usuarios")
 	public ResponseEntity<List<Usuario>> getAllUsuarios() {
-		return new ResponseEntity<List<Usuario>>(usuarioService.getAllUsuarios(), HttpStatus.OK);
+		logger.info("start UsuarioController getAllUsuarios");
+		
+		ResponseEntity<List<Usuario>> respuesta = null;
+		List<Usuario> listaUsuarios = usuarioService.getAllUsuarios();
+		
+		respuesta = new ResponseEntity<List<Usuario>>(listaUsuarios, HttpStatus.OK);
+		
+		logger.info("end UsuarioController getAllUsuarios");
+		
+		return respuesta;
 	}
 
 	@GetMapping(path = "/usuario/{id}")
 	public ResponseEntity<Usuario> getUsuarioPorId(@PathVariable(name = "id") Long id) {
+		logger.info("start UsuarioController getUsuarioPorId");
+		
 		Optional<Usuario> usuario = usuarioService.getUsuarioPorId(id);
+		ResponseEntity<Usuario> respuesta = null;
 
 		if (usuario.isEmpty()) {
-			return new ResponseEntity<Usuario>(HttpStatus.NOT_FOUND);
+			respuesta = new ResponseEntity<Usuario>(HttpStatus.NOT_FOUND);
 		} else {
-			return new ResponseEntity<Usuario>(usuario.get(), HttpStatus.OK);
+			respuesta = new ResponseEntity<Usuario>(usuario.get(), HttpStatus.OK);
 		}
 
+		logger.info("end UsuarioController getUsuarioPorId");
+		
+		return respuesta;
 	}
 
 	@PostMapping(path = "/usuario")
 	public ResponseEntity<?> saveUsuario(@Valid @RequestBody Usuario usuario, BindingResult bindingResult) {
+		logger.info("start UsuarioController saveUsuario");
+		
+		ResponseEntity<?> respuesta = null;
 
 		if (bindingResult.hasErrors()) {
 			return validar(bindingResult);
@@ -56,24 +77,29 @@ public class UsuarioController {
 		}
 		
 		if(!usuario.getEmail().isEmpty() && usuarioService.getUsuarioPorEmail(usuario.getEmail()).isPresent()) {
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			respuesta = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		
 		Usuario usuarioGuardado = null;
 
 		try {
 			usuarioGuardado = usuarioService.saveUsuario(usuario);
-			return new ResponseEntity<Usuario>(usuarioGuardado, HttpStatus.CREATED);
+			respuesta = new ResponseEntity<Usuario>(usuarioGuardado, HttpStatus.CREATED);
 		} catch (Exception e) {
-			System.out.println("error save usuario " + e.getMessage());
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			logger.info("error save usuario " + e.getMessage());
+			respuesta = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
+		logger.info("end UsuarioController saveUsuario");
 
+		return respuesta;
 	}
 
 	@PutMapping(path = "/usuario/{id}")
 	public ResponseEntity<?> updateUsuario(@PathVariable(name = "id") Long id, @Valid @RequestBody Usuario usuario, BindingResult bindingResult) {
-
+		logger.info("start UsuarioController updateUsuario");
+		
+		ResponseEntity<?> respuesta = null;
+		
 		if (bindingResult.hasErrors()) {
 			return validar(bindingResult);
 		}
@@ -84,7 +110,7 @@ public class UsuarioController {
 		try {
 			usuarioOptional = usuarioService.getUsuarioPorId(id);
 			if (usuarioOptional.isEmpty()) {
-				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+				respuesta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
 			} else {
 				usuarioDB = usuarioOptional.get();
 				
@@ -96,30 +122,57 @@ public class UsuarioController {
 				usuarioDB.setNombre(usuario.getNombre());
 				usuarioDB.setPassword(usuario.getPassword());
 				
-				return new ResponseEntity<Usuario>(usuarioService.saveUsuario(usuarioDB), HttpStatus.OK);
+				respuesta = new ResponseEntity<Usuario>(usuarioService.saveUsuario(usuarioDB), HttpStatus.OK);
 			}
 		} catch (Exception e) {
-			System.out.println("error update usuario " + e.getMessage());
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			logger.info("error update usuario " + e.getMessage());
+			respuesta = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 
+		logger.info("end UsuarioController updateUsuario");
+		
+		return respuesta;
 	}
 
 	@DeleteMapping(path = "/usuario/{id}")
-	public ResponseEntity<Void> deleteUsuario(@PathVariable(name = "id") Long id) {
+	public ResponseEntity<?> deleteUsuario(@PathVariable(name = "id") Long id) {
+		logger.info("start UsuarioController deleteUsuario");
+		
+		ResponseEntity<?> respuesta = null;
+		
 		Optional<Usuario> usuarioGuardado = null;
 		try {
 			usuarioGuardado = usuarioService.getUsuarioPorId(id);
 			if (usuarioGuardado.isEmpty()) {
-				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+				respuesta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
 			} else {
 				usuarioService.deleteUsuario(id);
-				return new ResponseEntity<>(HttpStatus.OK);
+				respuesta = new ResponseEntity<>(HttpStatus.OK);
 			}
 		} catch (Exception e) {
-			System.out.println("error delete usuario " + e.getMessage());
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			logger.info("error delete usuario " + e.getMessage());
+			respuesta = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
+		
+		logger.info("end UsuarioController deleteUsuario");
+		
+		return respuesta;
+	}
+	
+	@GetMapping(path =  "/usuariosCurso")
+	public ResponseEntity<?> getUsuariosCurso(@RequestParam List<Long> ids) {
+		logger.info("start UsuarioController deleteUsuario");
+		
+		ResponseEntity<?> respuesta = null;
+		List<Usuario> listaUsuarios = null;
+		
+		listaUsuarios = usuarioService.getUsuariosPorIds(ids);
+		respuesta = new ResponseEntity<>(listaUsuarios, HttpStatus.OK);
+		
+		logger.info("start UsuarioController deleteUsuario");
+		
+		return respuesta;
+		
 	}
 
 	private ResponseEntity<Map<String, String>> validar(BindingResult bindingResult) {
