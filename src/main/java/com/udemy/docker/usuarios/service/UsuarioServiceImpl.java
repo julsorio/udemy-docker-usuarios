@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.udemy.docker.usuarios.clients.CursoClientRest;
 import com.udemy.docker.usuarios.entity.Usuario;
 import com.udemy.docker.usuarios.repository.UsuarioRepository;
 
@@ -17,6 +18,9 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 	@Autowired
 	private UsuarioRepository usuarioRepository;
+	
+	@Autowired
+	private CursoClientRest cursoClientRest;
 
 	@Override
 	@Transactional(readOnly = true)
@@ -50,6 +54,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 	public void deleteUsuario(Long id) {
 		logger.info("start UsuarioServiceImpl deleteUsuario");
 		usuarioRepository.deleteById(id);
+		cursoClientRest.eliminarCursoUsuario(id);
 		logger.info("end UsuarioServiceImpl deleteUsuario");
 	}
 
