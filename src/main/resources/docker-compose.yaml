@@ -1,0 +1,71 @@
+name: udemy-docker
+
+services:
+  mysql8:
+    container_name: mysql8
+    image: mysql:8
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: sasa 
+      MYSQL_DATABASE: usuarios
+    volumes:
+      - data-mysql:/var/lib/mysql
+    restart: always
+    networks:
+      - spring
+  
+  postgres14:
+    container_name: postgres14
+    image: postgres:14-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: sasa
+      POSTGRES_DB: cursos
+    volumes:
+      - data-postgres:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - spring
+  
+  usuarios:
+    container_name: usuarios
+    #image: usuarios:latest -> hace el pull de la imagen del repositorio
+    build:
+      context: ./udemy-docker-usuarios/
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      SPRING_PROFILES_ACTIVE: test
+    networks:
+      - spring
+    depends_on:
+      - mysql8
+    restart: always
+  
+  cursos:
+    container_name: cursos
+    #image: cursos:latest -> hace el pull de la imagen del repositorio
+    build:
+      context: ./udemy-docker-cursos/
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8002"
+    environment:
+      SPRING_PROFILES_ACTIVE: test
+    networks:
+      - spring
+    depends_on:
+      - postgres14
+    restart: always
+
+volumes:
+   data-mysql:
+     name: data-mysql
+   data-postgres:
+     name: data-postgres
+
+networks:
+  spring:
