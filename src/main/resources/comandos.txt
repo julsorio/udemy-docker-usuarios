@@ -1,0 +1,976 @@
+comandos docker
+
+microservicio usuarios
+
+docker build . -> construir la imagen a partir del fichero dockerfile
+
+docker build -t nombre . -> se asigna un nombre a la imagen
+
+docker images -> listado de imagenes
+REPOSITORY   TAG       IMAGE ID       CREATED          SIZE
+<none>       <none>    fcec0cf6b505   45 seconds ago   530MB
+
+docker run IMAGE ID -> ejecutar la imagen creada pasando el ID
+docker run fcec0cf6b505
+
+se utiliza el parámetro -p para especificar el puerto externo:interno
+docker run -p 8001:8001 fcec0cf6b505
+
+nombre de  dominio: host.docker.internal para comunicar el contenedor con servicios en el host o fuera del contenedor, por ejemplo, BD
+jdbc:mysql://localhost... -> jdbc:mysql://host.docker.internal...
+
+docker ps -> listado de contenedores que se estan ejecutando
+CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS                    NAMES
+1827d1101410   bb87d0337d70   "java -jar usuarios-…"   6 minutes ago   Up 6 minutes   0.0.0.0:8001->8001/tcp   happy_ride
+
+docker ps -a -> listado de todos los contenedores (incluidos los detenidos)
+CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS                       PORTS                    NAMES
+1827d1101410   bb87d0337d70   "java -jar usuarios-…"   7 minutes ago   Up 7 minutes                 0.0.0.0:8001->8001/tcp   happy_ride
+ddf3ccf9ba19   bb87d0337d70   "java -jar usuarios-…"   8 minutes ago   Exited (130) 7 minutes ago                            hungry_satoshi
+5ef9ced7a8af   fcec0cf6b505   "java -jar usuarios-…"   21 hours ago    Exited (130) 21 hours ago                             ecstatic_torvalds
+68156f8cb159   fcec0cf6b505   "java -jar usuarios-…"   21 hours ago    Exited (130) 21 hours ago                             inspiring_clarke
+
+docker container ls -> listado de contenedores
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                    NAMES
+1827d1101410   bb87d0337d70   "java -jar usuarios-…"   17 minutes ago   Up 17 minutes   0.0.0.0:8001->8001/tcp   happy_ride
+
+docker rmi IMAGE ID -> eliminar una imagen
+
+comando a ejecutar luego de la optimizacion
+docker build -t usuarios . -f \udemy-docker-usuarios\Dockerfile
+
+docker stop CONTAINER ID -> detener la ejecucion del contenedor
+
+CONTAINER ID   IMAGE          COMMAND               CREATED          STATUS          PORTS                    NAMES
+fc75f7f40924   ef3a3df792c8   "java -jar app.jar"   56 minutes ago   Up 56 minutes   0.0.0.0:8001->8001/tcp   quirky_morse
+
+docker stop fc75f7f40924
+
+
+
+tag de una imagen
+docker tag
+docker build -t
+
+eliminar imagenes que no se están utilizando
+docker image prune
+
+analizar una imagen
+docker image inspect
+
+nombrar un contenedor
+docker run --name
+
+eliminar contenedores que no se están utilizando
+docker container prune
+
+analizar contenedores
+docker container inspect
+
+reiniciar un contenedor
+docker start
+
+ejecutar un contenedor en modo detached
+docker run -d -p 8001:8001 nombre
+
+docker attach nombre_contenedor
+
+ver logs
+docker logs nombre_contenedor
+
+ver logs y se queda atachado
+docker attach -f nombre_contenedor
+
+
+el comportamiento por defecto al lanzar el contenedor con docker run es attached
+mientras que será dettached con docker start
+
+docker start -a nombre_contenedor -> atachar la consola
+
+docker run -p 8001:8001 -d (dettached) --rm (que se elimine el contenedor cuando al detenerse) usuarios
+
+modo interactivo en el contenedor
+docker run -p 8001:8001 --rm -it (modo interactivo) usuarios /bin/sh
+este comando no surte efecto ya que se esta utilizando el comando ENTRYPOINT en el dockerfile y no se puede cambiar
+se reemplaza ENTRYPOINT por CMD. Si no se ingresa un parametro, se utiliza el comando en el dockerfile
+
+copiar un fichero del host al contenedor
+docker cp .\fichero ID_CONTENEDOR:path/fichero
+
+copiar un fichero del contenedor al host
+docker cp ID_CONTENEDOR:path/fichero path	
+
+inspeccionar una imagen
+docker images
+REPOSITORY   TAG       IMAGE ID       CREATED         SIZE
+usuarios     latest    a8a89e68407f   6 minutes ago   530MB
+<none>       <none>    87a9b2ac1ed3   16 hours ago    530MB
+
+docker images inspect  a8a89e68407f
+
+[
+    {
+        "Id": "sha256:a8a89e68407ff8e4d902812905fd1f39abafa8efe0a476ac2c76bc5012016061",
+        "RepoTags": [
+            "usuarios:latest"
+        ],
+        "RepoDigests": [],
+        "Parent": "",
+        "Comment": "buildkit.dockerfile.v0",
+        "Created": "2025-01-15T07:37:32.60374057Z",
+        "DockerVersion": "",
+        "Author": "",
+        "Config": {
+            "Hostname": "",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "ExposedPorts": {
+                "8001/tcp": {}
+            },
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "PATH=/usr/java/openjdk-17/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "JAVA_HOME=/usr/java/openjdk-17",
+                "LANG=C.UTF-8",
+                "JAVA_VERSION=17.0.2"
+            ],
+            "Cmd": null,
+            "Image": "",
+            "Volumes": null,
+            "WorkingDir": "/app",
+            "Entrypoint": [
+                "java",
+                "-jar",
+                "app.jar"
+            ],
+            "OnBuild": null,
+            "Labels": null
+        },
+        "Architecture": "amd64",
+        "Os": "linux",
+        "Size": 530193645,
+        "GraphDriver": {
+            "Data": {
+                "LowerDir": "/var/lib/docker/overlay2/v01s0p6cpcxdbr8bh5whm3bu6/diff:/var/lib/docker/overlay2/cck14hqajqywe983tmfpx5y7p/diff:/var/lib/docker/overlay2/42f51bc768b2f05b88173310744cb7420caa2f0e2cebda3b7c54491af9008080/diff:/var/lib/docker/overlay2/c90e32e1cc98a36a4d63e0cc22d126bf73efdc1871595a16162001912b239f2a/diff:/var/lib/docker/overlay2/16cddfb9a7bc7e7d8f43c4e2679762bc64ea59b0d14f2e101abacf37920b306f/diff",
+                "MergedDir": "/var/lib/docker/overlay2/ad5uw5252zciqjozl8yvb7z7q/merged",
+                "UpperDir": "/var/lib/docker/overlay2/ad5uw5252zciqjozl8yvb7z7q/diff",
+                "WorkDir": "/var/lib/docker/overlay2/ad5uw5252zciqjozl8yvb7z7q/work"
+            },
+            "Name": "overlay2"
+        },
+        "RootFS": {
+            "Type": "layers",
+            "Layers": [
+                "sha256:c8dd97366670ed499701572c321fb87ef4f9287308536563a8f1e3fd39ff2166",
+                "sha256:27ee19dc88f2661d3e42161a9b0b5f4c59089269ee71c9f212c71139ea9edf52",
+                "sha256:dc9fa3d8b576eada8a4f97ca296d0db470ea7342d544e7e2f3c42715d20c2798",
+                "sha256:106608b1bac03039d4863dfa5fa3d41e79cfd75c01cc9fe28e940259775791cc",
+                "sha256:3ba592e1387536795b5f480613f0ee00580933843a1e3ff56b9262552f4e3f47",
+                "sha256:184aaa065d8f94451334627d73576b06b65df162cdaf481c46c1b017a8632ac1"
+            ]
+        },
+        "Metadata": {
+            "LastTagTime": "2025-01-15T07:37:32.748791408Z"
+        }
+    }
+]
+
+inspeccionar el contenedor
+docker ps -a
+CONTAINER ID   IMAGE          COMMAND               CREATED         STATUS         PORTS                    NAMES
+2d12b84cc279   a8a89e68407f   "java -jar app.jar"   8 minutes ago   Up 8 minutes   0.0.0.0:8001->8001/tcp   gallant_wright
+
+docker container inspect 2d12b84cc279
+
+[
+    {
+        "Id": "2d12b84cc2792bcdab50d3cbfc7a17fde2399b928dcbf4c72d56cf0257675d35",
+        "Created": "2025-01-15T07:38:43.292049194Z",
+        "Path": "java",
+        "Args": [
+            "-jar",
+            "app.jar"
+        ],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 12088,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2025-01-15T07:38:43.391768508Z",
+            "FinishedAt": "0001-01-01T00:00:00Z"
+        },
+        "Image": "sha256:a8a89e68407ff8e4d902812905fd1f39abafa8efe0a476ac2c76bc5012016061",
+        "ResolvConfPath": "/var/lib/docker/containers/2d12b84cc2792bcdab50d3cbfc7a17fde2399b928dcbf4c72d56cf0257675d35/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/2d12b84cc2792bcdab50d3cbfc7a17fde2399b928dcbf4c72d56cf0257675d35/hostname",
+        "HostsPath": "/var/lib/docker/containers/2d12b84cc2792bcdab50d3cbfc7a17fde2399b928dcbf4c72d56cf0257675d35/hosts",
+        "LogPath": "/var/lib/docker/containers/2d12b84cc2792bcdab50d3cbfc7a17fde2399b928dcbf4c72d56cf0257675d35/2d12b84cc2792bcdab50d3cbfc7a17fde2399b928dcbf4c72d56cf0257675d35-json.log",
+        "Name": "/gallant_wright",
+        "RestartCount": 0,
+        "Driver": "overlay2",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "",
+        "ExecIDs": null,
+        "HostConfig": {
+            "Binds": null,
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "bridge",
+            "PortBindings": {
+                "8001/tcp": [
+                    {
+                        "HostIp": "",
+                        "HostPort": "8001"
+                    }
+                ]
+            },
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": true,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "ConsoleSize": [
+                51,
+                209
+            ],
+            "CapAdd": null,
+            "CapDrop": null,
+            "CgroupnsMode": "host",
+            "Dns": [],
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": null,
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": null,
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 67108864,
+            "Runtime": "runc",
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": [],
+            "BlkioDeviceReadBps": [],
+            "BlkioDeviceWriteBps": [],
+            "BlkioDeviceReadIOps": [],
+            "BlkioDeviceWriteIOps": [],
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": [],
+            "DeviceCgroupRules": null,
+            "DeviceRequests": null,
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": false,
+            "PidsLimit": null,
+            "Ulimits": [],
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/asound",
+                "/proc/acpi",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/sys/firmware",
+                "/sys/devices/virtual/powercap"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ]
+        },
+        "GraphDriver": {
+            "Data": {
+                "LowerDir": "/var/lib/docker/overlay2/bf569083e7b5906a970f65b275ef29c5ae195e30d9c6ad0fbb588de4cea23753-init/diff:/var/lib/docker/overlay2/ad5uw5252zciqjozl8yvb7z7q/diff:/var/lib/docker/overlay2/v01s0p6cpcxdbr8bh5whm3bu6/diff:/var/lib/docker/overlay2/cck14hqajqywe983tmfpx5y7p/diff:/var/lib/docker/overlay2/42f51bc768b2f05b88173310744cb7420caa2f0e2cebda3b7c54491af9008080/diff:/var/lib/docker/overlay2/c90e32e1cc98a36a4d63e0cc22d126bf73efdc1871595a16162001912b239f2a/diff:/var/lib/docker/overlay2/16cddfb9a7bc7e7d8f43c4e2679762bc64ea59b0d14f2e101abacf37920b306f/diff",
+                "MergedDir": "/var/lib/docker/overlay2/bf569083e7b5906a970f65b275ef29c5ae195e30d9c6ad0fbb588de4cea23753/merged",
+                "UpperDir": "/var/lib/docker/overlay2/bf569083e7b5906a970f65b275ef29c5ae195e30d9c6ad0fbb588de4cea23753/diff",
+                "WorkDir": "/var/lib/docker/overlay2/bf569083e7b5906a970f65b275ef29c5ae195e30d9c6ad0fbb588de4cea23753/work"
+            },
+            "Name": "overlay2"
+        },
+        "Mounts": [],
+        "Config": {
+            "Hostname": "2d12b84cc279",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": true,
+            "AttachStderr": true,
+            "ExposedPorts": {
+                "8001/tcp": {}
+            },
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "PATH=/usr/java/openjdk-17/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "JAVA_HOME=/usr/java/openjdk-17",
+                "LANG=C.UTF-8",
+                "JAVA_VERSION=17.0.2"
+            ],
+            "Cmd": null,
+            "Image": "a8a89e68407f",
+            "Volumes": null,
+            "WorkingDir": "/app",
+            "Entrypoint": [
+                "java",
+                "-jar",
+                "app.jar"
+            ],
+            "OnBuild": null,
+            "Labels": {}
+        },
+        "NetworkSettings": {
+            "Bridge": "",
+            "SandboxID": "a7fbbd6edc958a6d99452759764bc1e2293c64d4838be625cd79e0589f5ed93c",
+            "SandboxKey": "/var/run/docker/netns/a7fbbd6edc95",
+            "Ports": {
+                "8001/tcp": [
+                    {
+                        "HostIp": "0.0.0.0",
+                        "HostPort": "8001"
+                    }
+                ]
+            },
+            "HairpinMode": false,
+            "LinkLocalIPv6Address": "",
+            "LinkLocalIPv6PrefixLen": 0,
+            "SecondaryIPAddresses": null,
+            "SecondaryIPv6Addresses": null,
+            "EndpointID": "5293c27bdb610ce8bfafd3e8b11389a8e2942d9f82058bbcfbf743b50b169ae7",
+            "Gateway": "172.17.0.1",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "IPAddress": "172.17.0.2",
+            "IPPrefixLen": 16,
+            "IPv6Gateway": "",
+            "MacAddress": "02:42:ac:11:00:02",
+            "Networks": {
+                "bridge": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "MacAddress": "02:42:ac:11:00:02",
+                    "DriverOpts": null,
+                    "NetworkID": "fd31ee1c4c034558448b5cacb0dd237d4386701903efa5666507857395789143",
+                    "EndpointID": "5293c27bdb610ce8bfafd3e8b11389a8e2942d9f82058bbcfbf743b50b169ae7",
+                    "Gateway": "172.17.0.1",
+                    "IPAddress": "172.17.0.2",
+                    "IPPrefixLen": 16,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": null
+                }
+            }
+        }
+    }
+]
+
+repositorio de imagenes y contenedores
+
+incluir tag en la creacion de la imagen
+docker build -t usuarios:v1
+
+docker images
+REPOSITORY   TAG       IMAGE ID       CREATED          SIZE
+usuarios     latest    a8a89e68407f   19 minutes ago   530MB
+usuarios     v1        a8a89e68407f   19 minutes ago   530MB
+<none>       <none>    87a9b2ac1ed3   16 hours ago     530MB
+
+docker run -p 8001:8001 --rm -d usuarios:v1
+
+darle un nombre al contenedor
+docker run -p 8001:8001 --rm -d --name ms-usuarios usuarios:v1
+
+crear una red
+docker network --help
+
+docker network create spring
+
+listar redes
+docker network ls
+NETWORK ID     NAME      DRIVER    SCOPE
+fd31ee1c4c03   bridge    bridge    local
+ee41ba584174   host      host      local
+867d2bb67c13   none      null      local
+b0d03ec89f24   spring    bridge    local
+
+se inician contenedores dentro de la red
+docker run -p 8001:8001 -d --rm --name usuarios --network spring usuarios
+
+docker run -p 8002:8002 -d --rm --name cursos --network spring cursos
+
+contenedor mysql
+
+docker pull mysql:8
+
+docker images
+REPOSITORY   TAG       IMAGE ID       CREATED          SIZE
+cursos       latest    ca0c5173d6b5   34 minutes ago   530MB
+usuarios     latest    d4fc0c6e656a   35 minutes ago   530MB
+usuarios     v1        a8a89e68407f   9 hours ago      530MB
+mysql        8         3818a28b4a67   3 months ago     594MB
+
+iniciar el contenedor de mysql
+
+docker run -d -p 3306:3306 --name mysql8 --network spring -e MYSQL_ROOT_PASSWORD=sasa -e MYSQL_DATABASE=usuarios mysql:8
+
+contenedor de postgresql
+
+docker run -p 5432:5432 --name postgres14 --network spring -e POSTGRES_PASSWORD=sasa -e POSTGRES_DB=cursos -d postgres:14-alpine
+
+
+-e SPRING_PROFILES_ACTIVE=local
+
+docker run -p 8001:8001 -e SPRING_PROFILES_ACTIVE=dev -d --rm --name usuarios --network spring usuarios
+
+docker run -p 8002:8002 -e SPRING_PROFILES_ACTIVE=dev -d --rm --name cursos --network spring cursos
+
+volumenes
+
+listado de volumenes
+docker volume ls
+DRIVER    VOLUME NAME
+local     data-mysql
+local     data-postgres
+
+los datos almacenados en la bd se almacenan en el host. No se pierden si el contenedor se detiene o es eliminado
+
+docker run -d -p 3306:3306 --name mysql8 --network spring --restart=always -e MYSQL_ROOT_PASSWORD=sasa -e MYSQL_DATABASE=usuarios -v data-mysql:/var/lib/mysql mysql:8
+
+docker run -d -p 5432:5432 --name postgres14 --network spring --restart=always -e POSTGRES_PASSWORD=sasa -e POSTGRES_DB=cursos -v data-postgres:/var/lib/postgresql/data postgres:14-alpine
+
+conectarse mediante linea de comandos a un contenedor
+mysql
+docker run -it --rm --network spring mysql:8 bash
+mysql -hmysql8 -uroot -p
+
+docker run -it --rm --network spring postgres:14-alpine psql -h postgres14 -U postgres
+
+argumentos y environment
+
+los argumentos se utilizan para la construcción de la imagen
+environment se utilizan en tiempo de ejecución
+
+arg como variables dentro del dockerfile (no disponibles en entrypoint ni cmd)
+se puede configurar dinamicamente en la construccion de la imagen (docker build) pasando --build-arg
+
+env se utiliza dentro del dockerfile y está disponible también en el codigo fuente
+se configura dentro del dockerfile con la instruccion ENV y en docker run pasando -e o --env
+
+es posible sobreescribir el valor de un ARG definido en el dockerfile al construir la imagen
+dockerfile
+ARG PORT_APP=8002
+docker build -t usuarios:v1 --build-arg PORT_APP=8080
+docker run -p 8001:8080 -d --rm --name ...
+
+se puede crear un fichero con variables a reemplazar en el application.properties
+
+PORT=8002
+DB_HOST=postgres14:5432
+DB_PASSWORD=postgres
+
+server.port=${PORT:8002}
+spring.datasource.url=jdbc:postgresql://${DB_HOST:postgres14:5432}/cursos
+
+docker run -p 8002:8002 --env-file .env -d --rm --name cursos ...
+
+
+para filtrar todas las imagenes que no tienen un nombre y/o tag se puede utilizar el siguiente comando
+
+docker images -f dangling=true
+
+si agregas -q solo veras los ids de las imagenes
+
+docker images -q -f dangling=true
+
+y se puede  combinar los diferentes comandos de la siguiente forma para borrar todas aquellas imagenes que no tienen un nombre
+
+docker rmi $(docker images -q -f dangling=true)
+
+
+docker compose
+
+es una herramienta para orquestar contenedores mediante un fichero de configuracion (manifiesto) donde se configuran la construccion de imagenes y contenedores
+
+docker-compose up -d
+
+[+] Running 7/7
+ ✔ Network udemy-docker_spring          Created                                                                                                                                                       0.0s 
+ ✔ Volume "udemy-docker_data-mysql"     Created                                                                                                                                                       0.0s 
+ ✔ Volume "udemy-docker_data-postgres"  Created                                                                                                                                                       0.0s 
+ ✔ Container udemy-docker-postgres14-1  Started                                                                                                                                                       0.9s 
+ ✔ Container udemy-docker-mysql8-1      Started                                                                                                                                                       0.9s 
+ ✔ Container udemy-docker-cursos-1      Started                                                                                                                                                       1.4s 
+ ✔ Container udemy-docker-usuarios-1    Started   
+ 
+para bajar los contenedores (se eliminan automaticamente)
+docker-compose down 
+
+para eliminar los volumenes se pasa la opcion -v
+docker-compose down  -v 
+
+en el fichero docker-compose se puede especificar la construccion de la imagen
+
+realizar siempre el build de las imagenes
+docker-compose up --build -d
+
+solamente construir imagenes
+docker-compose build
+
+docker hub
+repositorio de imagenes
+
+docker push
+docker pull
+
+kubernetes
+plataforma para automatizar la implementacion, escalado, y la administracion de aplicaciones en contenedores
+provee una configuración estandarizada, archivos de manifiesto yml, contenedores, instancias, servicios, puertos, recursos
+
+worker node
+este contiene el pod que a su vez contiene el contenedor
+
+worker node
+	|
+	pod
+	|
+	contenedor
+	
+kublet -> administra los pod
+kube-proxy -> se encarga de la red (trafico de entrada y salida)
+
+master node -> administra los worker node (control plane)
+dentro del master node se encuentran: api server (recibe peticiones de configuracion), scheduler, kube controller manager, cloud controller manager
+la configuracion del master node se almacena en la base de datos etcd
+kubectl -> recibe las instrucciones que se envían al cluster
+
+descarga kubectl y minikube
+
+minikube start
+* minikube v1.35.0 en Microsoft Windows 11 Enterprise 10.0.22631.4460 Build 22631.4460
+* Controlador docker seleccionado automáticamente
+* Using Docker Desktop driver with root privileges
+* Starting "minikube" primary control-plane node in "minikube" cluster
+* Pulling base image v0.0.46 ...
+* Descargando Kubernetes v1.32.0 ...
+    > preloaded-images-k8s-v18-v1...:  333.57 MiB / 333.57 MiB  100.00% 34.42 M
+    > gcr.io/k8s-minikube/kicbase...:  500.31 MiB / 500.31 MiB  100.00% 5.22 Mi
+* Creating docker container (CPUs=2, Memory=4000MB) ...
+! Failing to connect to https://registry.k8s.io/ from inside the minikube container
+* To pull new external images, you may need to configure a proxy: https://minikube.sigs.k8s.io/docs/reference/networking/proxy/
+* Preparando Kubernetes v1.32.0 en Docker 27.4.1...
+  - Generando certificados y llaves
+  - Iniciando plano de control
+  - Configurando reglas RBAC...
+* Configurando CNI bridge CNI ...
+* Verifying Kubernetes components...
+  - Using image gcr.io/k8s-minikube/storage-provisioner:v5
+* Complementos habilitados: storage-provisioner, default-storageclass
+
+! C:\Program Files\Docker\Docker\resources\bin\kubectl.exe is version 1.30.5, which may have incompatibilities with Kubernetes 1.32.0.
+  - Want kubectl v1.32.0? Try 'minikube kubectl -- get pods -A'
+* Done! kubectl is now configured to use "minikube" cluster and "default" namespace by default
+
+minikube kubectl -- get pods -A
+    > kubectl.exe.sha256:  64 B / 64 B [---------------------] 100.00% ? p/s 0s
+    > kubectl.exe:  56.13 MiB / 56.13 MiB [--------] 100.00% 24.69 MiB p/s 2.5s
+NAMESPACE     NAME                               READY   STATUS    RESTARTS      AGE
+kube-system   coredns-668d6bf9bc-9hhzf           1/1     Running   0             105s
+kube-system   etcd-minikube                      1/1     Running   0             111s
+kube-system   kube-apiserver-minikube            1/1     Running   0             111s
+kube-system   kube-controller-manager-minikube   1/1     Running   0             111s
+kube-system   kube-proxy-p82wb                   1/1     Running   0             106s
+kube-system   kube-scheduler-minikube            1/1     Running   0             111s
+kube-system   storage-provisioner                1/1     Running   1 (84s ago)   109s
+
+minikube status
+minikube
+type: Control Plane
+host: Running
+kubelet: Running
+apiserver: Running
+kubeconfig: Configured
+
+objetos de kubernetes
+pods -> es la unidad mas pequeña en kubernetes
+puede contener, ejecutar y administrar más de un contenedor
+los contenedores dentro del pod se pueden comunicar con localhost
+cada pod tiene su direccion IP
+pueden contener recursos (volume) en comun para los contenedores
+los pods se pueden reemplazar, eliminar, replicados
+son manejados por kubernetes (se necesita un objeto deployment)
+
+
+deployments
+controla los pods
+los pods no se crean directamente sino a través de deployments para configurar el estado final
+se configura el estado deseado y kubernetes se encarga de mantenerlo
+define los pods y contenedores a ejecutar (basados en imagenes) y el numero de instancias
+los deployment pueden ser modificados, eliminados, detenidos y rollback
+cambiar el numero de pods o autoescalar bajo demanda
+
+
+services
+namespace
+volume
+
+formas de configuracion: declarativa e imperativa
+
+crear un deployment
+
+kubectl create deployment mysql8 --image=mysql:8 --port=3306
+al ejecutar la instruccion se realiza el pull de la imagen de mysql pero luego hay un error porque no se han suministrado
+los valores correspondientes a la contraseña root ni el nombre de la base de datos
+
+listado de deployments
+kubectl get deployments
+kubectl get deploy
+
+borrado de deployments
+kubectl delete deployment (nombre)
+
+se genera un fichero de configuracion para la creacion del deployment
+kubectl create deployment mysql8 --image=mysql:8 --port=3306 --dry-run=client -o yml > deployment-mysql.yml
+
+cuando se va a aplicar la configuracion de un archivo se utiliza apply
+kubectl apply -f .\fichero.yaml
+
+kubectl apply -f .\deployment-mysql.yaml
+deployment.apps/mysql8 created
+
+kubectl get deployments
+NAME     READY   UP-TO-DATE   AVAILABLE   AGE
+mysql8   0/1     1            0           45s
+
+kubectl get pods
+NAME                     READY   STATUS             RESTARTS   AGE
+mysql8-9fddbd657-rw25s   0/1     ImagePullBackOff   0          104s
+
+kubectl describe pod mysql8-9fddbd657-rw25s
+Name:             mysql8-9fddbd657-rw25s
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             minikube/192.168.49.2
+Start Time:       Sat, 25 Jan 2025 20:15:58 +0100
+Labels:           app=mysql8
+                  pod-template-hash=9fddbd657
+Annotations:      <none>
+Status:           Pending
+IP:               10.244.0.4
+IPs:
+  IP:           10.244.0.4
+Controlled By:  ReplicaSet/mysql8-9fddbd657
+Containers:
+  mysql:
+    Container ID:
+    Image:          mysql:8
+    Image ID:
+    Port:           3306/TCP
+    Host Port:      0/TCP
+    State:          Waiting
+      Reason:       ImagePullBackOff
+    Ready:          False
+    Restart Count:  0
+    Environment:
+      MYSQL_ROOT_PASSWORD:  sasa
+      MYSQL_DATABASE:       usuarios
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-4hjcj (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       False
+  ContainersReady             False
+  PodScheduled                True
+Volumes:
+  kube-api-access-4hjcj:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason          Age                 From               Message
+  ----     ------          ----                ----               -------
+  Normal   Scheduled       2m1s                default-scheduler  Successfully assigned default/mysql8-9fddbd657-rw25s to minikube
+  Normal   SandboxChanged  116s                kubelet            Pod sandbox changed, it will be killed and re-created.
+  Normal   Pulling         27s (x4 over 2m1s)  kubelet            Pulling image "mysql:8"
+  Warning  Failed          27s (x4 over 116s)  kubelet            Failed to pull image "mysql:8": Error response from daemon: Get "https://registry-1.docker.io/v2/": tls: failed to verify certificate: x509: certificate signed by unknown authority
+  Warning  Failed          27s (x4 over 116s)  kubelet            Error: ErrImagePull
+  Normal   BackOff         0s (x8 over 115s)   kubelet            Back-off pulling image "mysql:8"
+  Warning  Failed          0s (x8 over 115s)   kubelet            Error: ImagePullBackOff
+  
+  
+  --insecure-skip-tls-verify
+  
+  
+kubectl expose deployment mysql8 --port=3306 --type=ClusterIP
+ 
+kubectl expose deployment mysql8 --port=3306 --type=ClusterIP
+service/mysql8 exposed
+ 
+ClusterIP -> comunicacion interna
+NodePort -> direccion publica 
+LoadBalancer -> 
+
+litado de servicios
+kubectl get services o get svc
+NAME         TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
+kubernetes   ClusterIP   10.96.0.1      <none>        443/TCP    42m
+mysql8       ClusterIP   10.104.208.0   <none>        3306/TCP   57s
+
+kubectl get all
+NAME                         READY   STATUS    RESTARTS   AGE
+pod/mysql8-9fddbd657-w8k2q   1/1     Running   0          14m
+
+NAME                 TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
+service/kubernetes   ClusterIP   10.96.0.1      <none>        443/TCP    45m
+service/mysql8       ClusterIP   10.104.208.0   <none>        3306/TCP   3m25s
+
+NAME                     READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/mysql8   1/1     1            1           14m
+
+NAME                               DESIRED   CURRENT   READY   AGE
+replicaset.apps/mysql8-9fddbd657   1         1         1       14m
+
+
+kubectl create deployment usuarios --image=julsorio/udemy-docker-usuarios:v1 --port=8001 --dry-run=client -o yaml > deployment-usuarios.yaml
+
+kubectl create deployment cursos --image=julsorio/udemy-docker-cursos:v1 --port=8002 --dry-run=client -o yaml > deployment-cursos.yaml
+
+kubectl expose deployment usuarios --port=8001 --type=LoadBalancer 
+LoadBalancer para comunicacion interna (entre pods) y externa (postman)
+
+ip publica del cluster
+minikube service usuarios --url
+http://127.0.0.1:53455
+
+minikube service cursos --url
+http://127.0.0.1:52877
+
+kubectl create deployment postgres14 --image=postgres:14-alpine --port=5432 --dry-run=client -o yaml > deployment-postgres.yaml
+
+kubectl apply -f .\deployment-postgres.yaml
+deployment.apps/postgres14 created
+
+kubectl get deployments
+NAME         READY   UP-TO-DATE   AVAILABLE   AGE
+mysql8       1/1     1            1           11h
+postgres14   1/1     1            1           4s
+usuarios     1/1     1            1           10h
+
+kubectl get pods
+NAME                          READY   STATUS    RESTARTS   AGE
+mysql8-9fddbd657-w8k2q        1/1     Running   0          11h
+postgres14-759bd649b4-wj8rf   1/1     Running   0          14s
+usuarios-9b674f45b-hgcqj      1/1     Running   0          10h
+
+kubectl expose deployment postgres14 --port=5432 --type=ClusterIP
+service/postgres14 exposed
+
+ kubectl get services
+NAME         TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+kubernetes   ClusterIP      10.96.0.1        <none>        443/TCP          12h
+mysql8       ClusterIP      10.104.208.0     <none>        3306/TCP         11h
+postgres14   ClusterIP      10.108.48.171    <none>        5432/TCP         4s
+usuarios     LoadBalancer   10.102.236.186   <pending>     8001:32492/TCP   10h
+
+minikube service postgres14 --url
+😿  service default/postgres14 has no node port
+❗  Services [default/postgres14] have type "ClusterIP" not meant to be exposed, however for local development minikube allows you to access this !
+http://127.0.0.1:59018
+
+
+cambiar una imagen en el pod
+antes se realiza un describe del pod para obtener el nombre del contenedor y la imagen
+
+PS C:\Users\Julian> kubectl describe pod cursos-65489c697f-m8mph
+Name:             cursos-65489c697f-m8mph
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             minikube/192.168.49.2
+Start Time:       Wed, 29 Jan 2025 06:35:56 +0100
+Labels:           app=cursos
+                  pod-template-hash=65489c697f
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.12
+IPs:
+  IP:           10.244.0.12
+Controlled By:  ReplicaSet/cursos-65489c697f
+Containers:
+  udemy-docker-cursos:
+    Container ID:   docker://727ca94d5e8c772059df14a630149e4d1b797eb93011b15b90b365ec2c19f043
+    Image:          julsorio/udemy-docker-cursos:v1
+
+kubectl set image deployment cursos udemy-docker-cursos=julsorio/udemy-docker-cursos:v2
+
+escalar el numero de instancias
+kubectl scale deployment usuarios --replicas=3
+deployment.apps/usuarios scaled
+
+aparecen 3 pods de usuarios
+kubectl get pods
+NAME                          READY   STATUS    RESTARTS   AGE
+cursos-65489c697f-m8mph       1/1     Running   0          65m
+mysql8-9fddbd657-w8k2q        1/1     Running   0          13h
+postgres14-759bd649b4-wj8rf   1/1     Running   0          82m
+usuarios-9b674f45b-frksz      1/1     Running   0          38s
+usuarios-9b674f45b-hgcqj      1/1     Running   0          11h
+usuarios-9b674f45b-nzh22      1/1     Running   0          38s
+
+
+kubectl get all
+NAME                              READY   STATUS    RESTARTS   AGE
+pod/cursos-65489c697f-m8mph       1/1     Running   0          70m
+pod/mysql8-9fddbd657-w8k2q        1/1     Running   0          13h
+pod/postgres14-759bd649b4-wj8rf   1/1     Running   0          87m
+pod/usuarios-9b674f45b-frksz      1/1     Running   0          5m51s
+pod/usuarios-9b674f45b-hgcqj      1/1     Running   0          11h
+pod/usuarios-9b674f45b-nzh22      1/1     Running   0          5m51s
+
+NAME                 TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+service/cursos       LoadBalancer   10.111.65.157    <pending>     8002:31439/TCP   60m
+service/kubernetes   ClusterIP      10.96.0.1        <none>        443/TCP          13h
+service/mysql8       ClusterIP      10.104.208.0     <none>        3306/TCP         13h
+service/postgres14   ClusterIP      10.108.48.171    <none>        5432/TCP         84m
+service/usuarios     LoadBalancer   10.102.236.186   <pending>     8001:32492/TCP   11h
+
+NAME                         READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/cursos       1/1     1            1           70m
+deployment.apps/mysql8       1/1     1            1           13h
+deployment.apps/postgres14   1/1     1            1           87m
+deployment.apps/usuarios     3/3     3            3           11h
+
+NAME                                    DESIRED   CURRENT   READY   AGE
+replicaset.apps/cursos-65489c697f       1         1         1       70m
+replicaset.apps/mysql8-9fddbd657        1         1         1       13h
+replicaset.apps/postgres14-759bd649b4   1         1         1       87m
+replicaset.apps/usuarios-9b674f45b      3         3         3       11h
+
+
+ kubectl get service mysql8
+NAME     TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
+mysql8   ClusterIP   10.104.208.0   <none>        3306/TCP   13h
+
+generar fichero yaml a partir de un servicio
+kubectl get service mysql8 -o yaml > servicio-mysql.yaml
+
+eliminar despliegue usando el fichero yaml
+kubectl get deployments
+NAME         READY   UP-TO-DATE   AVAILABLE   AGE
+cursos       1/1     1            1           3h4m
+mysql8       1/1     1            1           15h
+postgres14   1/1     1            1           3h21m
+usuarios     3/3     3            3           13h
+
+kubectl get services
+NAME         TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+cursos       LoadBalancer   10.111.65.157    <pending>     8002:31439/TCP   175m
+kubernetes   ClusterIP      10.96.0.1        <none>        443/TCP          15h
+mysql8       ClusterIP      10.104.208.0     <none>        3306/TCP         15h
+postgres14   ClusterIP      10.108.48.171    <none>        5432/TCP         3h19m
+usuarios     LoadBalancer   10.102.236.186   <pending>     8001:32492/TCP   13h
+
+kubectl delete -f .\servicio-usuarios.yaml
+service "usuarios" deleted
+
+ kubectl delete -f .\deployment-usuarios.yaml
+deployment.apps "usuarios" deleted
+
+
+se actualiza el deployment de mysql con la informacion del volume para almacenamiento de datos
+ kubectl apply -f .\deployment-mysql.yaml
+deployment.apps/mysql8 configured
+
+C:\Users\Julian\Documents\udemy>kubectl logs cursos-65489c697f-q98df
+
+
+volumenes
+
+configuracion del volumen fuera del contenedor
+tipo host path -> configurado en un directorio
+
+persistent volume
+no se configura en el fichero deployment
+se configura por separado en un fichero yaml
+
+storage class
+C:\Users\Julian>kubectl get sc
+NAME                 PROVISIONER                RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
+standard (default)   k8s.io/minikube-hostpath   Delete          Immediate           false                  65d
+
+persistent volume claim
+se debe configurar en el fichero de deployment
+
+C:\Users\Julian\Documents\udemy>kubectl apply -f mysql-pv.yaml
+persistentvolume/mysql-pv created
+
+el recurso se ha creado en el cluster y no en el pod
+
+C:\Users\Julian\Documents\udemy>kubectl apply -f mysql-pvc.yaml
+persistentvolumeclaim/mysql-pvc created
+
+C:\Users\Julian\Documents\udemy>kubectl get pv
+NAME          CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                  STORAGECLASS   VOLUMEATTRIBUTESCLASS   REASON   AGE
+mysql-pv      2Gi        RWO            Retain           Bound    default/mysql-pvc      standard       <unset>                          15m
+postgres-pv   2Gi        RWO            Retain           Bound    default/postgres-pvc   standard       <unset>                          18s
+
+C:\Users\Julian\Documents\udemy>kubectl get pvc
+NAME           STATUS   VOLUME        CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+mysql-pvc      Bound    mysql-pv      2Gi        RWO            standard       <unset>                 14m
+postgres-pvc   Bound    postgres-pv   2Gi        RWO            standard       <unset>                 31s
+
+config map
+fichero especializado de kubernetes para centralizar la configuracion
