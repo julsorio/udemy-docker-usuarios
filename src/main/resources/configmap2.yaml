@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: servicio-usuarios
+data:
+  app_port: "8001"
+  db_host: "mysql8"
+  db_port: "3306"
+  db_name: "usuarios"
+  db_username: "root"
+  url_cursos: "http://cursos:8002/cursos/api/v1/"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: servicio-cursos
+data:
+  app_port: "8002"
+  db_host: "postgres14"
+  db_port: "5432"
+  db_name: "cursos"
+  db_username: "postgres"
+  url_usuarios: "http://usuarios:8001/usuarios/api/v1/"

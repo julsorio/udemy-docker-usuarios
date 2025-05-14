@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: usuarios
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: usuarios
+  template:
+    metadata:
+      labels:
+        app: usuarios
+    spec:
+      containers:
+      - image: julsorio/udemy-docker-usuarios:v2
+        name: udemy-docker-usuarios
+        ports:
+        - containerPort: 8001
+        env:
+          - name: APP_PORT
+            valueFrom:
+              configMapKeyRef:
+                name: servicio-usuarios
+                key: app_port
+          - name: DB_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: servicio-usuarios
+                key: db_host
+          - name: DB_PORT
+            valueFrom:
+              configMapKeyRef:
+                name: servicio-usuarios
+                key: db_port
+          - name: DB_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: servicio-usuarios
+                key: db_name
+          - name: DB_USERNAME
+            valueFrom:
+              configMapKeyRef:
+                name: servicio-usuarios
+                key: db_username
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: secret-db-usuarios
+                key: password
+          - name: URL_SRV_CURSOS
+            valueFrom:
+              configMapKeyRef:
+                name: servicio-usuarios
+                key: url_cursos
+          - name: SPRING_PROFILES_ACTIVE
+            value: prod
